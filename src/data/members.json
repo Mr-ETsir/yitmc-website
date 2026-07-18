@@ -1,0 +1,36 @@
+{
+  "leadership": [
+    {
+      "id": 1,
+      "name": "ET先生",
+      "role": "创社社长",
+      "avatar": "/img/people/ET先生.jpg",
+      "description": "2023级，YITMC创始人，带领社团从零起步完成校园复刻工程一期",
+      "grade": "2023级"
+    },
+    {
+      "id": 2,
+      "name": "王一诺",
+      "role": "联合创始人",
+      "avatar": "/img/people/王一诺.jpg",
+      "description": "2023级，YITMC联合创始人，参与社团初创及校园复刻工程一期建设",
+      "grade": "2023级"
+    },
+    {
+      "id": 3,
+      "name": "闵月",
+      "role": "社长",
+      "avatar": "/img/people/闵月.jpg",
+      "description": "2024级，带领社团推进二期工程，拓展社团对外合作与交流",
+      "grade": "2024级"
+    },
+    {
+      "id": 4,
+      "name": "鸢涵",
+      "role": "社长",
+      "avatar": "/img/people/鸢涵.jpg",
+      "description": "2025级，主持社团日常工作，协办像素沙盒数字孪生交流会",
+      "grade": "2025级"
+    }
+  ]
+}

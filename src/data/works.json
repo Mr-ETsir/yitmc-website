@@ -1,0 +1,163 @@
+{
+  "categories": [
+    { "key": "all", "label": "全部" },
+    { "key": "campus", "label": "复原工程" },
+    { "key": "architecture", "label": "其他建筑" },
+    { "key": "group", "label": "社团合照" }
+  ],
+  "works": [
+    {
+      "id": 1,
+      "title": "图书馆",
+      "category": "campus",
+      "image": "/img/Background/复原工程/图书馆.png",
+      "description": "1:1精确还原学校图书馆外观，展现建筑结构与周边环境",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 2,
+      "title": "图书馆 — 视角二",
+      "category": "campus",
+      "image": "/img/Background/复原工程/图书馆2.png",
+      "description": "图书馆另一角度展示，呈现建筑的完整面貌",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 3,
+      "title": "教学楼（白天）",
+      "category": "campus",
+      "image": "/img/Background/复原工程/教学楼(白天)1.png",
+      "description": "学校主教学楼日间外观复刻，精细还原建筑立面和窗户细节",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 4,
+      "title": "教学楼（黄昏）",
+      "category": "campus",
+      "image": "/img/Background/复原工程/教学楼(黄昏)1.png",
+      "description": "黄昏时分的教学楼，光影效果营造温馨的校园氛围",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 5,
+      "title": "教学楼（夜景）",
+      "category": "campus",
+      "image": "/img/Background/复原工程/教学楼(晚上)1.png",
+      "description": "教学楼夜景渲染，灯光效果展现校园夜晚的独特魅力",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 6,
+      "title": "教学楼（雨天）",
+      "category": "campus",
+      "image": "/img/Background/复原工程/教学楼(雨天)1.png",
+      "description": "雨中的教学楼，氛围感十足，展现特殊天气下的建筑质感",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 7,
+      "title": "学校校门",
+      "category": "campus",
+      "image": "/img/Background/复原工程/校门.png",
+      "description": "燕京理工学院校门1:1精准复刻，还原校门建筑及周边环境",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 8,
+      "title": "艺术楼（白天）",
+      "category": "campus",
+      "image": "/img/Background/复原工程/艺术楼(白天).png",
+      "description": "艺术楼日间复刻，展现艺术教学楼的建筑特色",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 9,
+      "title": "艺术楼（黄昏）",
+      "category": "campus",
+      "image": "/img/Background/复原工程/艺术楼(黄昏).png",
+      "description": "黄昏下的艺术楼，暖色调渲染营造独特艺术氛围",
+      "authors": ["YITMC建筑组"],
+      "date": "2025"
+    },
+    {
+      "id": 10,
+      "title": "原神角色 — 丝柯克",
+      "category": "architecture",
+      "image": "/img/Background/其他建筑工程/原神角色-丝柯克.png",
+      "description": "《原神》游戏角色丝柯克的Minecraft像素雕像还原",
+      "authors": ["YITMC创作组"],
+      "date": "2025"
+    },
+    {
+      "id": 11,
+      "title": "罗德岛",
+      "category": "architecture",
+      "image": "/img/Background/其他建筑工程/罗德岛.png",
+      "description": "《明日方舟》罗德岛舰船的Minecraft大型建筑还原",
+      "authors": ["YITMC创作组"],
+      "date": "2025"
+    },
+    {
+      "id": 12,
+      "title": "古罗马竞技场",
+      "category": "architecture",
+      "image": "/img/Background/其他建筑工程/竞技场.jpg",
+      "description": "古罗马竞技场的Minecraft建筑还原，展现宏伟的古典建筑风格",
+      "authors": ["YITMC创作组"],
+      "date": "2025"
+    },
+    {
+      "id": 13,
+      "title": "竞技场 — 鸟瞰视角",
+      "category": "architecture",
+      "image": "/img/Background/其他建筑工程/竞技场2.jpg",
+      "description": "竞技场俯视视角，完整展示建筑布局与细节",
+      "authors": ["YITMC创作组"],
+      "date": "2025"
+    },
+    {
+      "id": 14,
+      "title": "社团线上合照",
+      "category": "group",
+      "image": "/img/Background/社团合照/线上.png",
+      "description": "YITMC成员在Minecraft服务器中的线上大合照",
+      "authors": ["YITMC全体成员"],
+      "date": "2025"
+    },
+    {
+      "id": 15,
+      "title": "社团线上合照 — 二",
+      "category": "group",
+      "image": "/img/Background/社团合照/线上2.png",
+      "description": "社团成员线上合影留念，记录创作时光",
+      "authors": ["YITMC全体成员"],
+      "date": "2025"
+    },
+    {
+      "id": 16,
+      "title": "社团线上合照 — 三",
+      "category": "group",
+      "image": "/img/Background/社团合照/线上3.png",
+      "description": "服务器中的社团全家福，展现社团凝聚力",
+      "authors": ["YITMC全体成员"],
+      "date": "2025"
+    },
+    {
+      "id": 17,
+      "title": "社团线下活动合影",
+      "category": "group",
+      "image": "/img/Background/社团合照/线下.jpg",
+      "description": "社团线下活动的真实合影，记录面对面的欢乐时光",
+      "authors": ["YITMC全体成员"],
+      "date": "2025"
+    }
+  ]
+}

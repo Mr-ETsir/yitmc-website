@@ -1,0 +1,195 @@
+/* ================================================================
+   165fps Animation System — Apple-level smoothness
+   ================================================================
+   Rules:
+   - Animate ONLY transform + opacity (GPU compositor thread)
+   - NEVER animate: width, height, top, left, margin, padding, clip-path
+   - Use Apple cubic-bezier curves for natural-feeling motion
+   - `will-change` on elements that animate
+   - `translateZ(0)` on fixed layers
+   - `content-visibility: auto` on off-screen sections
+   ================================================================ */
+
+/* === Core keyframes — compositor-only === */
+
+@keyframes fadeUp {
+  0%   { opacity: 0; transform: translate3d(0, 30px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes fadeDown {
+  0%   { opacity: 0; transform: translate3d(0, -20px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes fadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  0%   { opacity: 0; transform: scale3d(0.96, 0.96, 1); }
+  100% { opacity: 1; transform: scale3d(1, 1, 1); }
+}
+
+@keyframes scaleInSpring {
+  0%   { opacity: 0; transform: scale3d(0.92, 0.92, 1); }
+  60%  { opacity: 1; transform: scale3d(1.02, 1.02, 1); }
+  100% { opacity: 1; transform: scale3d(1, 1, 1); }
+}
+
+/* Gentle float — infinite idle */
+@keyframes floatIdle {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -6px, 0); }
+}
+
+/* Hero entrance — one-shot glitch-then-settle */
+@keyframes heroEntrance {
+  0%   { opacity: 0; transform: translate3d(0, 8px, 0); }
+  15%  { opacity: 1; transform: translate3d(-4px, -2px, 0); }
+  30%  { transform: translate3d(3px, 0, 0); }
+  45%  { transform: translate3d(-2px, 0, 0); }
+  60%  { transform: translate3d(1px, 0, 0); }
+  75%  { transform: translate3d(0, 0, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Subtle parallax-ready slide */
+@keyframes slideUp {
+  0%   { opacity: 0; transform: translate3d(0, 60px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* ================================================================
+   Utility classes
+   ================================================================ */
+
+.animate-fade-up {
+  animation: fadeUp 0.5s var(--ease-apple-out) both;
+}
+
+.animate-fade-down {
+  animation: fadeDown 0.4s var(--ease-apple-out) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s var(--ease-apple-out) both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s var(--ease-apple-out) both;
+}
+
+.animate-scale-spring {
+  animation: scaleInSpring 0.6s var(--ease-spring) both;
+}
+
+.animate-float {
+  animation: floatIdle 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ================================================================
+   Stagger children — GPU-friendly, short delays, Apple easing
+   ================================================================ */
+
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeUp 0.5s var(--ease-apple-out) forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.20s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.24s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.28s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.32s; }
+
+/* Short variant — faster reveal for cards */
+.stagger-fast > * {
+  opacity: 0;
+  animation: fadeUp 0.35s var(--ease-apple-out) forwards;
+}
+.stagger-fast > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger-fast > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger-fast > *:nth-child(3) { animation-delay: 0.09s; }
+.stagger-fast > *:nth-child(4) { animation-delay: 0.12s; }
+.stagger-fast > *:nth-child(5) { animation-delay: 0.15s; }
+.stagger-fast > *:nth-child(6) { animation-delay: 0.18s; }
+
+/* ================================================================
+   Page transitions
+   ================================================================ */
+
+.page-enter-active {
+  animation: fadeUp 0.3s var(--ease-apple-out);
+}
+.page-leave-active {
+  animation: fadeIn 0.15s var(--ease-apple-in) reverse;
+}
+
+/* ================================================================
+   Scroll reveal (Intersection Observer driven)
+   ================================================================ */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition: opacity 0.5s var(--ease-apple-out),
+              transform 0.5s var(--ease-apple-out);
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ================================================================
+   Performance helpers
+   ================================================================ */
+
+.gpu-layer {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Off-screen sections can skip rendering entirely */
+.content-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Force hardware-accelerated scrolling */
+.hw-scroll {
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+}
+
+/* ================================================================
+   Accessibility — respect user preference
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .stagger-children > *,
+  .stagger-fast > * {
+    opacity: 1;
+    animation: none;
+  }
+}
