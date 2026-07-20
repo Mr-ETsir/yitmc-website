@@ -93,6 +93,19 @@ YITMC/
 
 ## 本地开发
 
+### Windows 快速启动（推荐）
+
+双击运行项目根目录下的脚本文件：
+
+| 脚本 | 说明 |
+|------|------|
+| `start-test.bat` | 命令提示符（CMD）启动脚本 |
+| `start-test.ps1` | PowerShell 启动脚本（Windows 11 推荐） |
+
+> **注意**：PowerShell 首次运行需执行 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` 以允许本地脚本运行。
+
+### 命令行启动
+
 ```bash
 # 安装依赖
 npm install
