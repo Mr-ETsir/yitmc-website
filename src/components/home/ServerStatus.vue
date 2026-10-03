@@ -124,7 +124,10 @@
                   <span class="server-card__stat-label">延迟</span>
                 </div>
                 <div class="server-card__stat">
-                  <span class="server-card__stat-val">{{ entry.status?.online ? entry.status.version || '--' : '--' }}</span>
+                  <span
+                    class="server-card__stat-val"
+                    :title="entry.status?.online ? entry.status.version : undefined"
+                  >{{ shortVersion(entry.status?.version) }}</span>
                   <span class="server-card__stat-label">版本</span>
                 </div>
               </div>
@@ -378,6 +381,12 @@ function latencyClass(ms: number | null | undefined): string {
   if (ms <= 100) return 'latency-good'
   if (ms <= 300) return 'latency-ok'
   return 'latency-bad'
+}
+
+/** 群组端的版本串可能极长（如 Waterfall 全版本列表），截断展示、悬浮看全文 */
+function shortVersion(v: string | undefined): string {
+  if (!v) return '--'
+  return v.length > 34 ? v.slice(0, 34).replace(/[\s,]+$/, '') + '…' : v
 }
 
 /* ---------------- MOTD § 颜色解析（移植自 uemcraft） ---------------- */

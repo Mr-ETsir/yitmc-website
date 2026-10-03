@@ -17,6 +17,14 @@
       "edition": "java"
     },
     {
+      "id": "play",
+      "name": "小游戏服务器",
+      "note": "床战 · 空岛 · PVP",
+      "address": "play.yitmc.cn",
+      "port": 0,
+      "edition": "java"
+    },
+    {
       "id": "jjgl",
       "name": "津高联联合服务器",
       "note": "原版生存",
