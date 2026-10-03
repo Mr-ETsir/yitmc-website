@@ -122,10 +122,12 @@ npx vite --port 自定义端口
 ### 方式零：GitHub Actions 自动部署（已内置）
 
 仓库已包含 `.github/workflows/deploy.yml`：每次推送到 `main` 分支会自动构建，
-并通过 FTP 上传 `dist/` 到社团服务器。首次启用只需在仓库
-**Settings → Secrets and variables → Actions** 中配置
-`FTP_SERVER` / `FTP_USERNAME` / `FTP_PASSWORD`（非 21 端口再加 `FTP_PORT`）。
+并通过 rsync over SSH 上传 `dist/` 到社团服务器（服务器 FTP 未开放，走 SSH）。
+首次启用只需在仓库 **Settings → Secrets and variables → Actions** 中配置
+`DEPLOY_HOST` / `DEPLOY_USER` / `DEPLOY_KEY`（可选 `DEPLOY_PORT`，默认 22）。
 未配置密钥时工作流只执行构建检查，部署步骤自动跳过。
+
+> 部署时始终排除服务器上的 `data/`、`uploads/`、`admin-config.php`（后台运行数据）。
 
 ### 方式一：静态托管（推荐）
 

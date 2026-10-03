@@ -1,8 +1,16 @@
 # ============================================================
-# 自动部署：构建 dist/ 并通过 FTP 上传到社团服务器。
+# 自动部署：构建 dist/ 并通过 rsync over SSH 上传到社团服务器
+# （服务器 FTP 21 端口未开放，走 SSH；与手工部署方式一致）
+#
 # 首次启用：仓库 Settings → Secrets and variables → Actions 中添加
-#   FTP_SERVER   / FTP_USERNAME / FTP_PASSWORD（如非 21 端口再加 FTP_PORT）
+#   DEPLOY_HOST  服务器地址（39.105.95.22）
+#   DEPLOY_USER  SSH 用户（admin）
+#   DEPLOY_KEY   SSH 私钥（对应该用户 authorized_keys 的整段私钥文本）
+#   DEPLOY_PORT  可选，默认 22
 # 未配置密钥时部署步骤自动跳过，仅执行构建检查。
+#
+# 注意：data/、uploads/、admin-config.php 为服务器上的后台运行数据，
+#       部署时始终排除，不会被构建产物覆盖或删除。
 # ============================================================
 name: Deploy
 
@@ -15,9 +23,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
-      FTP_SERVER: ${{ secrets.FTP_SERVER }}
-      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+      SSH_USER: ${{ secrets.DEPLOY_USER }}
+      SSH_KEY: ${{ secrets.DEPLOY_KEY }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -34,14 +42,15 @@ jobs:
       - name: 构建（含类型检查）
         run: npm run build
 
-      - name: 上传到社团服务器（FTP）
-        # 未配置 FTP 密钥时跳过，避免空跑报错
-        if: ${{ env.FTP_SERVER != '' }}
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          local-dir: dist/
-          server-dir: /          # ← 改成服务器上网站根目录，例如 /www/wwwroot/yitmc.cn/
+      - name: 部署到社团服务器（rsync over SSH）
+        # 未配置 DEPLOY_HOST 时跳过，避免空跑报错
+        if: ${{ env.SSH_HOST != '' }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          rsync -az --no-o --no-g --delete \
+            --exclude=data/ --exclude=uploads/ --exclude=admin-config.php \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -p ${{ secrets.DEPLOY_PORT || 22 }}" \
+            dist/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/yitmc.cn/
+          echo "DEPLOY-DONE"
