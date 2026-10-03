@@ -96,6 +96,12 @@ YITMC/
 > 状态数据来自公开 API（mcstatus.io / mcsrvstat.us / minetools），无需自建后端；
 > `displayAddress` 字段可为服务器配置对外展示的打码地址（如 `unioncompute.***`），真实地址仅用于查询。
 
+### PCL2 自定义主页
+
+为 PCL 启动器 2 提供的原生 XAML 主页：`https://www.yitmc.cn/homepage/`
+（源码 `img/homepage/index.php`，服务端实时查询服务器状态后生成 PCL2 XAML，缓存 60 秒）。
+在 PCL2 中：设置 → 个性化 → 自定义主页 → 启用并填入上述网址。
+
 ## 本地开发
 
 ### Windows 快速启动（推荐）
