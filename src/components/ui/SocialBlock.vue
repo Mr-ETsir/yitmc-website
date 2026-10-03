@@ -1,8 +1,8 @@
 <template>
-  <a :href="href" target="_blank" rel="noopener" class="social-block hover-lift">
-    <AppIcon :name="icon" :size="28" class="social-block__icon" />
-    <span class="social-block__label">{{ platform }}</span>
-    <span class="social-block__handle">{{ handle }}</span>
+  <a :href="href" target="_blank" rel="noopener" class="follow-card hover-lift">
+    <AppIcon :name="icon" :size="28" class="follow-card__icon" />
+    <span class="follow-card__label">{{ platform }}</span>
+    <span class="follow-card__handle">{{ handle }}</span>
   </a>
 </template>
 
@@ -18,7 +18,7 @@ defineProps<{
 </script>
 
 <style scoped>
-.social-block {
+.follow-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,27 +30,27 @@ defineProps<{
   color: var(--color-text) !important;
 }
 
-.social-block__icon {
+.follow-card__icon {
   color: var(--color-accent);
 }
 
-.social-block__label {
+.follow-card__label {
   font-family: var(--font-pixel);
   font-size: var(--text-xs);
   color: var(--color-accent);
 }
 
-.social-block__handle {
+.follow-card__handle {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
-.social-block:hover {
+.follow-card:hover {
   border-color: var(--color-accent);
 }
 
-.social-block:hover .social-block__handle {
+.follow-card:hover .follow-card__handle {
   color: var(--color-accent);
 }
 </style>

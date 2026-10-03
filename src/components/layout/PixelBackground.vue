@@ -28,7 +28,7 @@
   background-size: 32px 32px;
 }
 
-.pixel-bg > :not(.pixel-bg__grid) {
+.pixel-bg > :not(.pixel-bg__grid):not(.app-header) {
   position: relative;
   z-index: 1;
 }

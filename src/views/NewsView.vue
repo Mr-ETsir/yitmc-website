@@ -3,11 +3,11 @@
     <AppHeader />
     <main class="news-page">
       <section class="page-hero">
-        <h1 class="page-hero__title">社团动态</h1>
-        <p class="page-hero__subtitle">活动公告、项目进展与荣誉成果</p>
+        <h1 class="page-hero__title" data-reveal>社团动态</h1>
+        <p class="page-hero__subtitle" data-reveal data-reveal-delay="1">活动公告、项目进展与荣誉成果</p>
         <BlockDivider variant="grass" />
       </section>
-      <div class="news-page__inner">
+      <div class="news-page__inner" data-reveal data-reveal-delay="2">
         <NewsTimeline />
       </div>
     </main>

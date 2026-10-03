@@ -9,6 +9,25 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useScrollReveal } from '@/composables/useScrollReveal'
+
+const router = useRouter()
+const { init, destroy } = useScrollReveal()
+
+// 页面切换时重新观察新页面里的 [data-reveal] 元素；
+// 延迟需覆盖 out-in 过渡的离场时长（150ms）
+function observeReveals() {
+  window.setTimeout(() => init(), 250)
+}
+
+onMounted(() => {
+  init()
+  router.afterEach(observeReveals)
+})
+
+onBeforeUnmount(destroy)
 </script>
 
 <style>

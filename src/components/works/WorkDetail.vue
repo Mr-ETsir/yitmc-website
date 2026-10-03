@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import PixelModal from '@/components/ui/PixelModal.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import worksData from '@/data/works.json'
+import { worksData } from '@/data'
 
 defineProps<{ work: any }>()
 defineEmits<{ close: [] }>()

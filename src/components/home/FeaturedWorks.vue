@@ -1,18 +1,26 @@
 <template>
   <section class="featured">
     <div class="featured__inner">
-      <h2 class="featured__heading">精选作品</h2>
-      <div class="featured__grid stagger-children">
-        <PixelCard v-for="work in featuredWorks" :key="work.id" clickable @click="$router.push('/works')">
-          <template #image>
-            <img :src="work.image" :alt="work.title" loading="lazy" />
-          </template>
-          <h3 class="featured__title">{{ work.title }}</h3>
-          <p class="featured__desc">{{ work.description }}</p>
-          <span class="featured__tag">{{ getCategoryLabel(work.category) }}</span>
-        </PixelCard>
+      <h2 class="featured__heading" data-reveal>精选作品</h2>
+      <div class="featured__grid">
+        <div
+          v-for="(work, index) in featuredWorks"
+          :key="work.id"
+          class="featured__cell"
+          data-reveal
+          :style="{ transitionDelay: `${Math.min(index, 5) * 90}ms` }"
+        >
+          <PixelCard clickable @click="$router.push('/works')">
+            <template #image>
+              <img :src="work.image" :alt="work.title" loading="lazy" />
+            </template>
+            <h3 class="featured__title">{{ work.title }}</h3>
+            <p class="featured__desc">{{ work.description }}</p>
+            <span class="featured__tag">{{ getCategoryLabel(work.category) }}</span>
+          </PixelCard>
+        </div>
       </div>
-      <div class="featured__more">
+      <div class="featured__more" data-reveal>
         <PixelButton to="/works" variant="secondary">查看全部作品 →</PixelButton>
       </div>
     </div>
@@ -23,7 +31,7 @@
 import { useRouter } from 'vue-router'
 import PixelCard from '@/components/ui/PixelCard.vue'
 import PixelButton from '@/components/ui/PixelButton.vue'
-import worksData from '@/data/works.json'
+import { worksData } from '@/data'
 
 const router = useRouter()
 
@@ -58,6 +66,14 @@ function getCategoryLabel(key: string): string {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-lg);
+}
+
+.featured__cell {
+  height: 100%;
+}
+
+.featured__cell > .pixel-card {
+  height: 100%;
 }
 
 .featured__title {

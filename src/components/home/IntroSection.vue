@@ -2,15 +2,15 @@
   <section class="intro">
     <BlockDivider variant="grass" />
     <div class="intro__inner">
-      <h2 class="intro__heading">关于 YITMC</h2>
+      <h2 class="intro__heading" data-reveal>关于 YITMC</h2>
       <div class="intro__grid">
-        <div class="intro__text">
+        <div class="intro__text" data-reveal="left">
           <p>燕理MC创作协会，于<b>2024年</b>由燕京理工学院内热爱《我的世界》游戏的学生自发创建。</p>
           <p>协会为成员们提供了一个集<b>交流、学习、创新和协作</b>为一体的平台，旨在推动游戏技术与创意的发展。协会汇聚了对游戏开发充满热情的学生，他们不仅探索游戏世界，更将其视为学习和创新的工具。</p>
           <p>通过分享<b>建筑、电路设计和模组开发</b>等技能，成员们不断提升自己并将所学应用于实际创作中。社团核心项目——<b>燕京理工学院校园复刻工程</b>，在抖音与B站等平台持续更新。</p>
         </div>
-        <div class="intro__badge">
-          <img src="/img/官方社团证明.jpg" alt="官方社团注册证明" class="intro__proof-img" />
+        <div class="intro__badge" data-reveal="right" data-reveal-delay="1">
+          <img src="/官方社团证明.jpg" alt="官方社团注册证明" class="intro__proof-img" />
         </div>
       </div>
     </div>

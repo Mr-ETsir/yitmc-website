@@ -8,6 +8,15 @@ export function useScrollReveal() {
   function init(selector: string = '[data-reveal]') {
     if (typeof window === 'undefined') return
 
+    // 环境不支持时直接显示全部内容，避免元素永远隐藏
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll(selector).forEach((el) => el.classList.add('is-revealed'))
+      return
+    }
+
+    // 支持路由切换后重复调用：断开旧观察器，重新观察当前 DOM
+    observer?.disconnect()
+
     observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -21,7 +30,7 @@ export function useScrollReveal() {
     )
 
     document.querySelectorAll(selector).forEach((el) => {
-      observer?.observe(el)
+      if (!el.classList.contains('is-revealed')) observer?.observe(el)
     })
   }
 

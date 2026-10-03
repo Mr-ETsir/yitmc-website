@@ -17,7 +17,7 @@
 [📺 哔哩哔哩](https://space.bilibili.com/3546886464080420) ·
 [🎵 抖音](https://www.douyin.com/user/MS4wLjABAAAA-7Qqtyf0Wz2A18bvNLF8YYD5nRWCiX25Wsx7JfgXePc?from_tab_name=main) ·
 [💬 QQ 群 942717135](https://qm.qq.com/q/942717135) ·
-[🎨 皮肤站](https://skin.mualliance.ltd/)
+[🎨 皮肤站](https://skin.yitmc.cn/)
 
 </div>
 
@@ -40,7 +40,7 @@ YITMC（燕京理工学院 MC 玩家创作协会）官方门户网站，采用**
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/` | 首页 | Logo、社团简介、精选作品、数据亮点、社交媒体 |
+| `/` | 首页 | Logo、社团简介、精选作品、数据亮点、MC 服务器状态、社交媒体 |
 | `/works` | 作品展示 | 分类筛选（复原工程/其他建筑/社团合照）、图片网格、详情弹窗 |
 | `/news` | 社团动态 | 时间线布局的活动公告与项目进展 |
 | `/members` | 成员风采 | 社团管理团队展示 |
@@ -90,19 +90,17 @@ YITMC/
 | `news.json` | 社团动态/公告列表 |
 | `members.json` | 管理团队成员信息（姓名、头像、角色、简介） |
 | `stats.json` | 首页数据亮点数字 |
+| `servers.json` | 首页服务器状态组件的 MC 服务器列表（名称、地址、端口） |
+
+> **服务器状态组件**：实时查询各服务器的在线人数、延迟、版本与 MOTD，支持一键复制地址与手动刷新。
+> 状态数据来自公开 API（mcstatus.io / mcsrvstat.us / minetools），无需自建后端；
+> `displayAddress` 字段可为服务器配置对外展示的打码地址（如 `unioncompute.***`），真实地址仅用于查询。
 
 ## 本地开发
 
 ### Windows 快速启动（推荐）
 
-双击运行项目根目录下的脚本文件：
-
-| 脚本 | 说明 |
-|------|------|
-| `start-test.bat` | 命令提示符（CMD）启动脚本 |
-| `start-test.ps1` | PowerShell 启动脚本（Windows 11 推荐） |
-
-> **注意**：PowerShell 首次运行需执行 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` 以允许本地脚本运行。
+命令行启动见下方；`start-test.*` 脚本已移除，直接使用 `npm run dev` 即可。
 
 ### 命令行启动
 
@@ -120,6 +118,14 @@ npx vite --port 自定义端口
 开发服务器启动后访问 `http://localhost:25565`。
 
 ## 生产部署
+
+### 方式零：GitHub Actions 自动部署（已内置）
+
+仓库已包含 `.github/workflows/deploy.yml`：每次推送到 `main` 分支会自动构建，
+并通过 FTP 上传 `dist/` 到社团服务器。首次启用只需在仓库
+**Settings → Secrets and variables → Actions** 中配置
+`FTP_SERVER` / `FTP_USERNAME` / `FTP_PASSWORD`（非 21 端口再加 `FTP_PORT`）。
+未配置密钥时工作流只执行构建检查，部署步骤自动跳过。
 
 ### 方式一：静态托管（推荐）
 
@@ -219,7 +225,7 @@ npm run preview
 - [燕京理工学院](https://www.yit.edu.cn/)
 - [MUA 高校 Minecraft 联盟](https://www.mualliance.cn/)
 - [VCAC 体素创作艺术委员会](https://www.voxel.ac.cn/)
-- [社团皮肤站](https://skin.mualliance.ltd/)
+- [社团皮肤站](https://skin.yitmc.cn/)
 
 ## 许可证
 

@@ -2,7 +2,7 @@
   <section class="stats">
     <BlockDivider variant="stone" />
     <div class="stats__inner">
-      <div class="stats__grid">
+      <div class="stats__grid" data-reveal="zoom">
         <AnimatedCounter
           v-for="stat in statsData.stats"
           :key="stat.label"
@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import BlockDivider from '@/components/ui/BlockDivider.vue'
 import AnimatedCounter from '@/components/ui/AnimatedCounter.vue'
-import statsData from '@/data/stats.json'
+import { statsData } from '@/data'
 </script>
 
 <style scoped>

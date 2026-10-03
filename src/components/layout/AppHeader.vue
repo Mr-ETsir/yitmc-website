@@ -2,14 +2,15 @@
   <header class="app-header" :class="{ 'app-header--scrolled': scrolled }">
     <div class="app-header__inner">
       <router-link to="/" class="app-header__logo">
-        <img src="/img/logo/logo.png" alt="YITMC Logo" class="app-header__logo-img" />
+        <img src="/logo/logo.png" alt="YITMC Logo" class="app-header__logo-img" />
         <span class="app-header__logo-text">YITMC</span>
       </router-link>
 
       <nav class="app-header__nav" :class="{ 'app-header__nav--open': menuOpen }">
-        <router-link v-for="link in navLinks" :key="link.to" :to="link.to" class="app-header__link">
+        <router-link v-for="link in navLinks" :key="link.to" :to="link.to" class="app-header__link" @click="menuOpen = false">
           {{ link.label }}
         </router-link>
+        <a :href="config.skinStationUrl" target="_blank" rel="noopener" class="app-header__link" @click="menuOpen = false">皮肤站</a>
       </nav>
 
       <button class="app-header__burger" @click="menuOpen = !menuOpen" aria-label="Toggle menu">
@@ -21,9 +22,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { siteConfig } from '@/data'
 
 const menuOpen = ref(false)
 const scrolled = ref(false)
+const config = siteConfig
 
 const navLinks = [
   { to: '/', label: '首页' },
@@ -138,11 +141,15 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
     top: var(--header-height);
     left: 0;
     right: 0;
+    z-index: 99;
     flex-direction: column;
     background: var(--color-bg);
     border-bottom: var(--border-width) solid var(--color-accent-dim);
     padding: var(--space-md);
     display: none;
+    max-height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.35);
   }
 
   .app-header__nav--open {

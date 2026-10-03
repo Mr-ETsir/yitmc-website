@@ -3,12 +3,12 @@
     <AppHeader />
     <main class="join-page">
       <section class="page-hero">
-        <h1 class="page-hero__title">加入我们</h1>
-        <p class="page-hero__subtitle">一起用方块创造无限可能！</p>
+        <h1 class="page-hero__title" data-reveal>加入我们</h1>
+        <p class="page-hero__subtitle" data-reveal data-reveal-delay="1">一起用方块创造无限可能！</p>
         <BlockDivider variant="grass" />
       </section>
 
-      <div class="join-page__inner">
+      <div class="join-page__inner" data-reveal data-reveal-delay="2">
         <div class="join-page__grid">
           <div class="join-page__section">
             <h2><AppIcon name="message-circle" :size="18" /> 加入QQ群</h2>
@@ -32,9 +32,9 @@
 
           <div class="join-page__section">
             <h2><AppIcon name="shirt" :size="18" /> 皮肤站</h2>
-            <p class="join-page__desc">我们使用 MUA 联盟皮肤站，上传和管理你的 Minecraft 皮肤</p>
+            <p class="join-page__desc">我们使用 YITMC 自建皮肤站，上传和管理你的 Minecraft 皮肤</p>
             <a :href="config.skinStationUrl" target="_blank" rel="noopener" class="join-page__direct-link">
-              <PixelButton variant="gold" block>前往 MUA 皮肤站</PixelButton>
+              <PixelButton variant="gold" block>前往 YITMC 皮肤站</PixelButton>
             </a>
           </div>
         </div>
@@ -84,7 +84,7 @@ import SocialBlock from '@/components/ui/SocialBlock.vue'
 import CopyText from '@/components/join/CopyText.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
 import QRCodeCard from '@/components/join/QRCodeCard.vue'
-import siteConfig from '@/data/site-config.json'
+import { siteConfig } from '@/data'
 
 const config = siteConfig
 </script>

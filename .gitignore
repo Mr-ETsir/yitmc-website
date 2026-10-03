@@ -25,3 +25,13 @@ npm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Local tooling
+.claude/
+.mimosa/
+
+# WSL 专属符号链接（构建使用 publicDir: img，无需 public/）
+/public
+
+# 管理后台真实密码配置（含敏感信息，禁止入库）
+img/admin-config.php

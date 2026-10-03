@@ -3,7 +3,7 @@
     <BlockDivider variant="dirt" />
     <div class="app-footer__inner">
       <div class="app-footer__brand">
-        <img src="/img/logo/logo.png" alt="YITMC" class="app-footer__logo" />
+        <img src="/logo/logo.png" alt="YITMC" class="app-footer__logo" />
         <p class="app-footer__name">燕京理工学院 MC玩家创作协会</p>
         <p class="app-footer__motto">用方块还原校园，用创意连接世界</p>
       </div>
@@ -19,7 +19,7 @@
         <h4 class="app-footer__heading">关注我们</h4>
         <a :href="config.douyinUrl" target="_blank" rel="noopener" class="app-footer__social-link"><AppIcon name="music" :size="14" /> 抖音</a>
         <a :href="config.bilibiliUrl" target="_blank" rel="noopener" class="app-footer__social-link"><AppIcon name="video" :size="14" /> B站</a>
-        <a :href="config.skinStationUrl" target="_blank" rel="noopener" class="app-footer__social-link"><AppIcon name="shirt" :size="14" /> MUA 皮肤站</a>
+        <a :href="config.skinStationUrl" target="_blank" rel="noopener" class="app-footer__social-link"><AppIcon name="shirt" :size="14" /> YITMC 皮肤站</a>
       </div>
 
       <div class="app-footer__links">
@@ -28,12 +28,14 @@
         <a :href="config.schoolUrl" target="_blank" rel="noopener" class="app-footer__social-link">燕京理工学院</a>
         <a :href="config.muaUrl" target="_blank" rel="noopener" class="app-footer__social-link">MUA 高校联盟</a>
         <a :href="config.vcacUrl" target="_blank" rel="noopener" class="app-footer__social-link">VCAC 体素专委会</a>
+        <a :href="config.uemcraftUrl" target="_blank" rel="noopener" class="app-footer__social-link">应大MC同好会</a>
         <a :href="config.acmUrl" target="_blank" rel="noopener" class="app-footer__social-link">ACM 协会</a>
       </div>
     </div>
 
     <div class="app-footer__bottom">
       <p>&copy; {{ year }} YITMC. 燕京理工学院MC玩家创作协会.</p>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" class="app-footer__icp">{{ config.icpNumber }}</a>
     </div>
   </footer>
 </template>
@@ -42,7 +44,7 @@
 import { computed } from 'vue'
 import BlockDivider from '@/components/ui/BlockDivider.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import siteConfig from '@/data/site-config.json'
+import { siteConfig } from '@/data'
 
 const config = siteConfig
 const year = computed(() => new Date().getFullYear())
@@ -120,6 +122,18 @@ const navLinks = [
   text-align: center;
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+.app-footer__icp {
+  display: inline-block;
+  margin-top: var(--space-xs);
+  color: var(--color-text-muted) !important;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-pixel);
+}
+
+.app-footer__icp:hover {
+  color: var(--color-accent) !important;
 }
 
 @media (max-width: 768px) {

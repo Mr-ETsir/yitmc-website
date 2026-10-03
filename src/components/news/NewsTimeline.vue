@@ -10,6 +10,7 @@
           <span class="timeline__type" :class="`timeline__type--${item.type}`"><AppIcon :name="typeIcon(item.type)" :size="14" /> {{ typeLabel(item.type) }}</span>
           <span class="timeline__date">{{ item.date }}</span>
         </div>
+        <img v-if="item.image" :src="item.image" :alt="item.title" loading="lazy" class="timeline__pic" />
         <h3 class="timeline__title">{{ item.title }}</h3>
         <p class="timeline__summary">{{ item.summary }}</p>
         <p v-if="item.content" class="timeline__content">{{ item.content }}</p>
@@ -20,9 +21,10 @@
 
 <script setup lang="ts">
 import AppIcon from '@/components/icons/AppIcon.vue'
-import newsData from '@/data/news.json'
+import { newsData } from '@/data'
 
-const newsItems = newsData.news
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const newsItems = (newsData as any).news
 
 function typeIcon(type: string): string {
   const icons: Record<string, string> = {
@@ -107,6 +109,23 @@ function typeLabel(type: string): string {
 .timeline__date {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+}
+
+.timeline__pic {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: var(--space-md);
+  border: var(--border-width-sm) solid var(--color-accent-dim);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 640px) {
+  .timeline__pic {
+    width: 100%;
+    height: auto;
+  }
 }
 
 .timeline__title {

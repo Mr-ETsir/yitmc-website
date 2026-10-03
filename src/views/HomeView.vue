@@ -6,6 +6,7 @@
       <IntroSection />
       <FeaturedWorks />
       <StatsSection />
+      <ServerStatus />
       <SocialSection />
     </main>
     <AppFooter />
@@ -20,5 +21,6 @@ import HeroSection from '@/components/home/HeroSection.vue'
 import IntroSection from '@/components/home/IntroSection.vue'
 import FeaturedWorks from '@/components/home/FeaturedWorks.vue'
 import StatsSection from '@/components/home/StatsSection.vue'
+import ServerStatus from '@/components/home/ServerStatus.vue'
 import SocialSection from '@/components/home/SocialSection.vue'
 </script>

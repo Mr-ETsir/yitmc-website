@@ -39,6 +39,12 @@ const router = createRouter({
       component: () => import('@/views/JoinView.vue'),
       meta: { title: '加入我们 - YITMC' },
     },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/AdminView.vue'),
+      meta: { title: '网站内容管理 - YITMC' },
+    },
   ],
   scrollBehavior() {
     return { top: 0 }

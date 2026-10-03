@@ -8,7 +8,7 @@
     </div>
 
     <div class="hero__content gpu-layer" ref="contentRef">
-      <img src="/img/logo/logo.png" alt="YITMC Logo" class="hero__logo animate-float" />
+      <img src="/logo/logo.png" alt="YITMC Logo" class="hero__logo animate-float" />
       <h1 class="hero__title">YITMC</h1>
       <p class="hero__subtitle">{{ config.clubName }}</p>
       <p class="hero__tagline">{{ config.clubMotto }}</p>
@@ -29,22 +29,22 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import PixelButton from '@/components/ui/PixelButton.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import siteConfig from '@/data/site-config.json'
+import { siteConfig } from '@/data'
 
 const config = siteConfig
 const mosaicImages = [
-  '/img/Background/复原工程/教学楼(白天)1.png',
-  '/img/Background/复原工程/图书馆.png',
-  '/img/Background/复原工程/教学楼(黄昏)1.png',
-  '/img/Background/复原工程/校门.png',
-  '/img/Background/复原工程/教学楼(晚上)1.png',
-  '/img/Background/复原工程/艺术楼(白天).png',
-  '/img/Background/复原工程/教学楼(雨天)1.png',
-  '/img/Background/复原工程/艺术楼(黄昏).png',
-  '/img/Background/其他建筑工程/竞技场.jpg',
-  '/img/Background/其他建筑工程/罗德岛.png',
-  '/img/Background/其他建筑工程/原神角色-丝柯克.png',
-  '/img/Background/社团合照/线上.png',
+  '/Background/复原工程/教学楼(白天)1.webp',
+  '/Background/复原工程/图书馆.webp',
+  '/Background/复原工程/教学楼(黄昏)1.webp',
+  '/Background/复原工程/校门.webp',
+  '/Background/复原工程/教学楼(晚上)1.webp',
+  '/Background/复原工程/艺术楼(白天).webp',
+  '/Background/复原工程/教学楼(雨天)1.webp',
+  '/Background/复原工程/艺术楼(黄昏).webp',
+  '/Background/其他建筑工程/竞技场.webp',
+  '/Background/其他建筑工程/罗德岛.webp',
+  '/Background/其他建筑工程/原神角色-丝柯克.webp',
+  '/Background/社团合照/线上.webp',
 ]
 
 // Subtle parallax — throttled rAF, skips sub-pixel changes

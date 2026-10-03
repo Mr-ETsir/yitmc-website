@@ -1,0 +1,37 @@
+{
+  "servers": [
+    {
+      "id": "srvl",
+      "name": "燕通联合服务器",
+      "note": "社团主服",
+      "address": "srvl.yitmc.cn",
+      "port": 0,
+      "edition": "java"
+    },
+    {
+      "id": "building",
+      "name": "复原工程建筑服",
+      "note": "校园复刻工程",
+      "address": "building.yitmc.cn",
+      "port": 0,
+      "edition": "java"
+    },
+    {
+      "id": "jjgl",
+      "name": "津高联联合服务器",
+      "note": "原版生存",
+      "address": "unioncompute.top",
+      "displayAddress": "unioncompute.***",
+      "port": 26149,
+      "edition": "java"
+    },
+    {
+      "id": "mua-lobby",
+      "name": "MUA Lobby",
+      "note": "MUA 高校联盟大厅",
+      "address": "lobby.mualliance.cn",
+      "port": 0,
+      "edition": "java"
+    }
+  ]
+}

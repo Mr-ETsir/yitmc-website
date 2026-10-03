@@ -3,12 +3,12 @@
     <AppHeader />
     <main class="about-page">
       <section class="page-hero">
-        <h1 class="page-hero__title">关于我们</h1>
-        <p class="page-hero__subtitle">燕京理工学院 MC 玩家创作协会</p>
+        <h1 class="page-hero__title" data-reveal>关于我们</h1>
+        <p class="page-hero__subtitle" data-reveal data-reveal-delay="1">燕京理工学院 MC 玩家创作协会</p>
         <BlockDivider variant="grass" />
       </section>
 
-      <div class="about-page__inner">
+      <div class="about-page__inner" data-reveal data-reveal-delay="2">
         <div class="about-page__section block-inset">
           <h2><AppIcon name="book-open" :size="18" /> 社团简介</h2>
           <p>燕理MC创作协会（YITMC），于<b>2024年</b>由燕京理工学院内热爱《我的世界》游戏的学生自发创建。是燕京理工学院<b>官方注册</b>的学生社团组织。</p>
@@ -81,7 +81,7 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import BlockDivider from '@/components/ui/BlockDivider.vue'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import siteConfig from '@/data/site-config.json'
+import { siteConfig } from '@/data'
 
 const config = siteConfig
 </script>

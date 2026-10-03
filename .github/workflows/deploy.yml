@@ -1,0 +1,47 @@
+# ============================================================
+# 自动部署：构建 dist/ 并通过 FTP 上传到社团服务器。
+# 首次启用：仓库 Settings → Secrets and variables → Actions 中添加
+#   FTP_SERVER   / FTP_USERNAME / FTP_PASSWORD（如非 21 端口再加 FTP_PORT）
+# 未配置密钥时部署步骤自动跳过，仅执行构建检查。
+# ============================================================
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}   # 允许在 Actions 页面手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建（含类型检查）
+        run: npm run build
+
+      - name: 上传到社团服务器（FTP）
+        # 未配置 FTP 密钥时跳过，避免空跑报错
+        if: ${{ env.FTP_SERVER != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          local-dir: dist/
+          server-dir: /          # ← 改成服务器上网站根目录，例如 /www/wwwroot/yitmc.cn/

@@ -3,12 +3,12 @@
     <AppHeader />
     <main class="works-page">
       <section class="page-hero">
-        <h1 class="page-hero__title">作品展示</h1>
-        <p class="page-hero__subtitle">燕理校园复刻工程及社团创作作品</p>
+        <h1 class="page-hero__title" data-reveal>作品展示</h1>
+        <p class="page-hero__subtitle" data-reveal data-reveal-delay="1">燕理校园复刻工程及社团创作作品</p>
         <BlockDivider variant="grass" />
       </section>
 
-      <div class="works-page__inner">
+      <div class="works-page__inner" data-reveal data-reveal-delay="2">
         <FilterTabs v-model="activeCategory" :categories="worksData.categories" />
         <WorkGrid :active-category="activeCategory" @select="selectedWork = $event" />
       </div>
@@ -28,7 +28,7 @@ import BlockDivider from '@/components/ui/BlockDivider.vue'
 import FilterTabs from '@/components/works/FilterTabs.vue'
 import WorkGrid from '@/components/works/WorkGrid.vue'
 import WorkDetail from '@/components/works/WorkDetail.vue'
-import worksData from '@/data/works.json'
+import { worksData } from '@/data'
 
 const activeCategory = ref('all')
 const selectedWork = ref<any>(null)

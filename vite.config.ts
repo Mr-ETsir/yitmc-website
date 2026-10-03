@@ -10,7 +10,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
-  publicDir: 'public',
+  publicDir: 'img',
   server: {
     port: 25565,
   },

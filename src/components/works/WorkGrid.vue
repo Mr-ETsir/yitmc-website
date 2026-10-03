@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import PixelCard from '@/components/ui/PixelCard.vue'
-import worksData from '@/data/works.json'
+import { worksData } from '@/data'
 
 const props = defineProps<{ activeCategory: string }>()
 defineEmits<{ select: [work: any] }>()

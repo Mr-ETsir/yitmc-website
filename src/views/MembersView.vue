@@ -3,13 +3,13 @@
     <AppHeader />
     <main class="members-page">
       <section class="page-hero">
-        <h1 class="page-hero__title">成员风采</h1>
-        <p class="page-hero__subtitle">YITMC 管理团队</p>
+        <h1 class="page-hero__title" data-reveal>成员风采</h1>
+        <p class="page-hero__subtitle" data-reveal data-reveal-delay="1">YITMC 管理团队</p>
         <BlockDivider variant="grass" />
       </section>
 
       <div class="members-page__inner">
-        <div class="members-page__grid stagger-children">
+        <div class="members-page__grid stagger-children" data-reveal>
           <MemberCard v-for="member in membersData.leadership" :key="member.id" :member="member" />
         </div>
 
@@ -30,7 +30,7 @@ import AppFooter from '@/components/layout/AppFooter.vue'
 import BlockDivider from '@/components/ui/BlockDivider.vue'
 import PixelButton from '@/components/ui/PixelButton.vue'
 import MemberCard from '@/components/members/MemberCard.vue'
-import membersData from '@/data/members.json'
+import { membersData } from '@/data'
 </script>
 
 <style scoped>

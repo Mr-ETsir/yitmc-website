@@ -1,8 +1,8 @@
 <template>
   <section class="social">
     <div class="social__inner">
-      <h2 class="social__heading">关注我们</h2>
-      <div class="social__grid">
+      <h2 class="social__heading" data-reveal>关注我们</h2>
+      <div class="social__grid" data-reveal data-reveal-delay="1">
         <SocialBlock
           icon="music"
           platform="抖音"
@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import SocialBlock from '@/components/ui/SocialBlock.vue'
-import siteConfig from '@/data/site-config.json'
+import { siteConfig } from '@/data'
 
 const config = siteConfig
 </script>
