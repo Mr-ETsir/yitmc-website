@@ -3,10 +3,14 @@
  * YITMC · PCL2 自定义主页（动态生成 PCL2 XAML）
  *
  * PCL2 → 设置 → 个性化 → 自定义主页 → 填入本页 URL 即可。
- * 每次启动器加载时实时查询各服务器状态并生成原生 XAML 卡片。
+ * PCL2 的版本缓存机制：启动器先请求 {主页URL}version（本文件内按路径识别），
+ * 版本号变化才重新下载完整主页，因此支持：
+ *   - /homepage/version   返回状态数据的生成时间戳（纯文本）
+ *   - /homepage/          返回完整 XAML
  *
  * 数据源：minetools.eu（状态+延迟）为主，mcstatus.io 兜底；
- * 查询结果缓存 60 秒，避免多人同时启动时打爆上游 API。
+ * 5 台服务器并行查询（curl_multi），状态缓存 60 秒；
+ * /version 命中时先立即返回旧版本号，再在后台静默刷新缓存。
  *
  * 安全：本文件不含任何用户输入；所有请求目标均为下方硬编码的
  * 公网服务器，发起请求前逐个校验 host（拒绝内网/环回/保留地址）。
@@ -15,33 +19,74 @@
 declare(strict_types=1);
 
 date_default_timezone_set('Asia/Shanghai');
-header('Content-Type: application/xml; charset=UTF-8');
-header('Cache-Control: no-store');
-header('X-Robots-Tag: noindex');
 
 /* ==================== 配置区 ==================== */
 
-const HTTP_TIMEOUT = 8;   // 单个上游 API 超时（秒）
+const HTTP_TIMEOUT = 5;   // 单个上游 API 超时（秒）
 const CACHE_TTL = 60;     // 状态缓存（秒）
 const MAX_MOTD_LINES = 3; // MOTD 最多显示行数
 const MINETOOLS = 'https://api.minetools.eu/ping/';
 const MCSTATUS = 'https://api.mcstatus.io/v2/status/java/';
+const CACHE_FILE = 'yitmc-pcl-status.json';
 
-// port=0 表示自动 SRV 解析，failPort 为 SRV 查询失败时的兜底端口
+// port=0 表示自动 SRV 解析，failPort 为 SRV 查询失败时的兜底端口；id 用于端口缓存
 $SERVERS = [
-    ['name' => '燕通联合服务器',   'note' => '社团主服',        'host' => 'srvl.yitmc.cn',     'display' => 'srvl.yitmc.cn',     'port' => 0,     'failPort' => 20043],
-    ['name' => '复原工程建筑服',   'note' => '校园复刻工程',    'host' => 'building.yitmc.cn', 'display' => 'building.yitmc.cn', 'port' => 0,     'failPort' => 19000],
-    ['name' => '小游戏服务器',     'note' => '床战 · 空岛 · PVP','host' => 'play.yitmc.cn',    'display' => 'play.yitmc.cn',     'port' => 0,     'failPort' => 20091],
-    ['name' => '津高联联合服务器', 'note' => '原版生存',        'host' => 'unioncompute.top',  'display' => 'unioncompute.***',  'port' => 26149, 'failPort' => 26149],
-    ['name' => 'MUA Lobby',        'note' => 'MUA 高校联盟大厅', 'host' => 'lobby.mualliance.cn','display' => 'lobby.mualliance.cn','port' => 0,    'failPort' => 25565],
+    ['id' => 'srvl',     'name' => '燕通联合服务器',   'note' => '社团主服',        'host' => 'srvl.yitmc.cn',     'display' => 'srvl.yitmc.cn',     'port' => 0,     'failPort' => 20043],
+    ['id' => 'building', 'name' => '复原工程建筑服',   'note' => '校园复刻工程',    'host' => 'building.yitmc.cn', 'display' => 'building.yitmc.cn', 'port' => 0,     'failPort' => 19000],
+    ['id' => 'play',     'name' => '小游戏服务器',     'note' => '床战 · 空岛 · PVP','host' => 'play.yitmc.cn',    'display' => 'play.yitmc.cn',     'port' => 0,     'failPort' => 20091],
+    ['id' => 'jjgl',     'name' => '津高联联合服务器', 'note' => '原版生存',        'host' => 'unioncompute.top',  'display' => 'unioncompute.***',  'port' => 26149, 'failPort' => 26149],
+    ['id' => 'mua',      'name' => 'MUA Lobby',        'note' => 'MUA 高校联盟大厅', 'host' => 'lobby.mualliance.cn','display' => 'lobby.mualliance.cn','port' => 0,    'failPort' => 25565],
 ];
 
 /* ================================================ */
 
-/** 仅允许公网域名：格式校验 + 解析结果不得为环回/私有/保留地址 */
+function cachePath(): string
+{
+    return sys_get_temp_dir() . '/' . CACHE_FILE;
+}
+
+/** 状态数据的生成时间戳（PCL2 /version 端点用） */
+function cacheGen(): int
+{
+    $file = cachePath();
+    if (!is_file($file)) {
+        return 0;
+    }
+    $j = json_decode((string) @file_get_contents($file), true);
+    return is_array($j) && isset($j['gen']) ? (int) $j['gen'] : 0;
+}
+
+function cacheFresh(): bool
+{
+    $file = cachePath();
+    return is_file($file) && time() - (int) filemtime($file) < CACHE_TTL;
+}
+
+/**
+ * 主机名校验：合法公网域名格式，且显式拒绝环回/私有/保留地址形态。
+ * 注意：本端点所有 HTTP 请求的实际目标都是下方硬编码的公网 API 主机
+ * （apiHostCheck 做含 DNS 的完整校验）；此函数校验的是拼进 URL 路径的
+ * MC 服务器主机名（同样来自硬编码配置），不发起 DNS 解析以保证速度。
+ */
 function isPublicHost(string $host): bool
 {
     if (!preg_match('/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i', $host)) {
+        return false;
+    }
+    if (preg_match('/^(localhost|.*\.local|.*\.localhost|.*\.lan|.*\.internal|.*\.home\.arpa)$/i', $host)) {
+        return false;
+    }
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        // IP 字面量：只允许公网
+        return filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+    }
+    return true;
+}
+
+/** 实际发起 HTTP 请求的 API 主机（硬编码常量）：完整校验，含解析 IP 范围检查 */
+function apiHostCheck(string $host): bool
+{
+    if (!isPublicHost($host)) {
         return false;
     }
     $ip = @gethostbyname($host);
@@ -67,22 +112,11 @@ function resolveSrvPort(string $host): int
     return 0;
 }
 
-/** GET 一个 https URL，cURL 可用则用 cURL，否则用原生流（服务器无需额外 PHP 扩展） */
-function httpGet(string $url): ?string
-{
-    if (function_exists('curl_init')) {
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => HTTP_TIMEOUT,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_FOLLOWLOCATION => false,
-        ]);
-        $body = curl_exec($ch);
-        curl_close($ch);
-        return is_string($body) && $body !== '' ? $body : null;
-    }
+/* ---------- HTTP ---------- */
 
+/** GET 一个 https URL（原生流实现，通用兜底） */
+function httpGetStream(string $url): ?string
+{
     $ctx = stream_context_create([
         'http' => [
             'method' => 'GET',
@@ -97,19 +131,58 @@ function httpGet(string $url): ?string
     return is_string($body) && $body !== '' ? $body : null;
 }
 
-/** 查询单台服务器（minetools 为主：一条请求同时拿到状态和延迟） */
-function queryMinetools(string $host, int $port): ?array
+/** 并行 GET 多个 https URL；cURL 不可用时退化为串行 */
+function httpGetAll(array $urls): array
 {
-    if (!isPublicHost($host)) {
-        return null;
+    if (!function_exists('curl_multi_init')) {
+        $out = [];
+        foreach ($urls as $key => $url) {
+            $out[$key] = httpGetStream($url);
+        }
+        return $out;
     }
-    $url = MINETOOLS . rawurlencode($host) . '/' . $port;
-    $body = httpGet($url);
-    if (!is_string($body) || $body === '') {
+
+    $mh = curl_multi_init();
+    $handles = [];
+    foreach ($urls as $key => $url) {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => HTTP_TIMEOUT,
+            CURLOPT_CONNECTTIMEOUT => 4,
+            CURLOPT_FOLLOWLOCATION => false,
+        ]);
+        curl_multi_add_handle($mh, $ch);
+        $handles[$key] = $ch;
+    }
+
+    do {
+        $mrc = curl_multi_exec($mh, $active);
+        if ($active) {
+            curl_multi_select($mh, 1.0);
+        }
+    } while ($active && $mrc === CURLM_OK);
+
+    $bodies = [];
+    foreach ($handles as $key => $ch) {
+        $body = curl_multi_getcontent($ch);
+        $bodies[$key] = is_string($body) && $body !== '' ? $body : null;
+        curl_multi_remove_handle($mh, $ch);
+        curl_close($ch);
+    }
+    curl_multi_close($mh);
+    return $bodies;
+}
+
+/* ---------- 状态查询 ---------- */
+
+/** 解析 minetools 响应（在线时含 version/latency；离线或失败返回 {"error": ...}） */
+function parseMinetools(?string $body): ?array
+{
+    if ($body === null) {
         return null;
     }
     $j = json_decode($body, true);
-    // minetools 在线时返回 version/latency；离线或查询失败返回 {"error": "..."}
     if (!is_array($j) || isset($j['error']) || !isset($j['version']['name'])) {
         return null;
     }
@@ -128,15 +201,10 @@ function queryMinetools(string $host, int $port): ?array
     ];
 }
 
-/** mcstatus.io 兜底（无延迟数据） */
-function queryMcstatus(string $host, int $port): ?array
+/** 解析 mcstatus.io 响应（兜底；无延迟数据） */
+function parseMcstatus(?string $body): ?array
 {
-    if (!isPublicHost($host)) {
-        return null;
-    }
-    $addr = $port === 25565 ? $host : $host . ':' . $port;
-    $body = httpGet(MCSTATUS . rawurlencode($addr));
-    if (!is_string($body) || $body === '') {
+    if ($body === null) {
         return null;
     }
     $j = json_decode($body, true);
@@ -154,48 +222,134 @@ function queryMcstatus(string $host, int $port): ?array
     ];
 }
 
-function queryAll(array $servers): array
+function offlineStatus(): array
 {
-    $out = [];
-    foreach ($servers as $cfg) {
-        $port = $cfg['port'];
-        if ($port === 0) {
-            $port = resolveSrvPort($cfg['host']);
-            if ($port === 0) {
-                $port = $cfg['failPort'];
-            }
-        }
-        $st = queryMinetools($cfg['host'], $port);
-        if ($st === null) {
-            // minetools 失败或报错时用 mcstatus.io 兜底确认（含真实离线判定）
-            $fb = queryMcstatus($cfg['host'], $port);
-            if ($fb !== null) {
-                $st = $fb;
-            }
-        }
-        if ($st === null) {
-            $st = ['online' => false, 'version' => '', 'players' => 0, 'max' => 0, 'motd' => '', 'latency' => null];
-        }
-        $st['port'] = $port;
-        $out[] = $st;
-    }
-    return $out;
+    return ['online' => false, 'version' => '', 'players' => 0, 'max' => 0, 'motd' => '', 'latency' => null];
 }
 
-/** 60 秒状态缓存（存的是查询结果，XAML 每次实时渲染） */
-function queryCached(array $servers): array
+/** 并行查询全部服务器：第一轮 minetools，失败者第二轮 mcstatus 兜底。
+ *  返回 [statuses, ports]；ports 缓存后下次刷新无需再做 SRV/DNS 查询 */
+function queryAll(array $servers, array $cachedPorts = []): array
 {
-    $file = sys_get_temp_dir() . '/yitmc-pcl-status.json';
-    if (is_file($file) && time() - (int) filemtime($file) < CACHE_TTL) {
-        $cached = json_decode((string) @file_get_contents($file), true);
-        if (is_array($cached) && count($cached) === count($servers)) {
-            return $cached;
+    // 请求目标 API 主机做含 DNS 的完整校验（常量，失败即全部离线）
+    if (!apiHostCheck('api.minetools.eu') || !apiHostCheck('api.mcstatus.io')) {
+        return [array_map(fn() => offlineStatus(), $servers), $cachedPorts];
+    }
+
+    $targets = [];
+    foreach ($servers as $i => $cfg) {
+        $port = $cfg['port'];
+        if ($port === 0) {
+            // 端口缓存（SRV 极少变化）：命中则零 DNS 开销
+            $port = $cachedPorts[$cfg['id']] ?? 0;
+            if ($port === 0) {
+                $port = resolveSrvPort($cfg['host']);
+                if ($port === 0) {
+                    $port = $cfg['failPort'];
+                }
+            }
+        }
+        $targets[$i] = ['id' => $cfg['id'], 'host' => $cfg['host'], 'port' => $port];
+    }
+
+    // 第一轮：minetools（一条请求同时拿到状态和延迟）
+    $urls = [];
+    foreach ($targets as $i => $t) {
+        $urls[$i] = isPublicHost($t['host'])
+            ? MINETOOLS . rawurlencode($t['host']) . '/' . $t['port']
+            : '';
+    }
+    $bodies = httpGetAll(array_filter($urls, fn($u) => $u !== ''));
+    $statuses = [];
+    $needFallback = [];
+    foreach ($targets as $i => $t) {
+        $st = ($urls[$i] !== '') ? parseMinetools($bodies[$i] ?? null) : null;
+        if ($st === null) {
+            $needFallback[$i] = $t;
+            $statuses[$i] = null;
+        } else {
+            $statuses[$i] = $st;
         }
     }
-    $result = queryAll($servers);
-    @file_put_contents($file, json_encode($result, JSON_UNESCAPED_UNICODE), LOCK_EX);
-    return $result;
+
+    // 第二轮：mcstatus.io 兜底确认（含真实离线判定）
+    if ($needFallback) {
+        $fbUrls = [];
+        foreach ($needFallback as $i => $t) {
+            $addr = $t['port'] === 25565 ? $t['host'] : $t['host'] . ':' . $t['port'];
+            $fbUrls[$i] = isPublicHost($t['host'])
+                ? MCSTATUS . rawurlencode($addr)
+                : '';
+        }
+        $fbBodies = httpGetAll(array_filter($fbUrls, fn($u) => $u !== ''));
+        foreach ($needFallback as $i => $t) {
+            $st = ($fbUrls[$i] !== '') ? parseMcstatus($fbBodies[$i] ?? null) : null;
+            $statuses[$i] = $st ?? offlineStatus();
+        }
+    }
+
+    $ports = [];
+    foreach ($targets as $i => $t) {
+        $statuses[$i]['port'] = $t['port'];
+        $ports[$t['id']] = $t['port'];
+    }
+    return [$statuses, $ports];
 }
+
+function cachePorts(): array
+{
+    $j = json_decode((string) @file_get_contents(cachePath()), true);
+    return is_array($j) && isset($j['ports']) && is_array($j['ports']) ? $j['ports'] : [];
+}
+
+function refreshCache(array $servers): void
+{
+    [$statuses, $ports] = queryAll($servers, cachePorts());
+    $payload = ['gen' => time(), 'ports' => $ports, 'statuses' => $statuses];
+    @file_put_contents(cachePath(), json_encode($payload, JSON_UNESCAPED_UNICODE), LOCK_EX);
+}
+
+/** 拿到当前状态（带 60 秒缓存） */
+function queryCached(array $servers): array
+{
+    if (cacheFresh()) {
+        $j = json_decode((string) @file_get_contents(cachePath()), true);
+        if (is_array($j) && isset($j['statuses']) && count($j['statuses']) === count($servers)) {
+            return $j['statuses'];
+        }
+    }
+    refreshCache($servers);
+    $j = json_decode((string) @file_get_contents(cachePath()), true);
+    return is_array($j) && isset($j['statuses']) ? $j['statuses'] : array_map(fn() => offlineStatus(), $servers);
+}
+
+/* ---------- /version 端点（PCL2 缓存校验） ---------- */
+
+$path = rtrim((string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/'), '/');
+if (substr($path, -8) === '/version') {
+    header('Content-Type: text/plain; charset=UTF-8');
+    header('Cache-Control: no-store');
+    if (cacheFresh()) {
+        echo (string) max(cacheGen(), 1);
+        exit;
+    }
+    if (function_exists('fastcgi_finish_request')) {
+        // 先把当前版本号发给启动器（命中其本地缓存，零等待），
+        // 请求结束后在后台刷新状态缓存，下次启动器启动即可看到新版本号
+        echo (string) max(cacheGen(), 1);
+        fastcgi_finish_request();
+        refreshCache($SERVERS);
+        exit;
+    }
+    // 无 FPM（CLI 等）：同步刷新后输出
+    refreshCache($SERVERS);
+    echo (string) max(cacheGen(), 1);
+    exit;
+}
+
+header('Content-Type: application/xml; charset=UTF-8');
+header('Cache-Control: no-store');
+header('X-Robots-Tag: noindex');
 
 /* ---------- XAML 生成 ---------- */
 
@@ -241,11 +395,6 @@ function trunc(string $s, int $max): string
     return uLen($s) > $max ? uSub($s, 0, $max - 1) . '…' : $s;
 }
 
-function latencyText(?int $ms): string
-{
-    return $ms !== null ? $ms . 'ms' : '--';
-}
-
 function serverCard(array $cfg, array $st): string
 {
     $online = $st['online'];
@@ -266,7 +415,7 @@ function serverCard(array $cfg, array $st): string
     $xaml .= '            <local:MyListItem Margin="-5,2,-5,2" Logo="pack://application:,,,/images/Blocks/CommandBlock.png" Title="地址" Info="' . xesc($addrText) . '" Type="Clickable" EventType="复制文本" EventData="' . xesc($copyText) . '" />' . "\n";
     $xaml .= '            <local:MyListItem Margin="-5,2,-5,2" Logo="pack://application:,,,/images/Blocks/GoldBlock.png" Title="版本" Info="' . xesc($online ? trunc($st['version'], 60) : '--') . '" />' . "\n";
     $xaml .= '            <local:MyListItem Margin="-5,2,-5,2" Logo="pack://application:,,,/images/Blocks/Grass.png" Title="玩家" Info="' . ($online ? xesc($st['players'] . ' / ' . $st['max']) : '--') . '" />' . "\n";
-    $xaml .= '            <local:MyListItem Margin="-5,2,-5,2" Logo="pack://application:,,,/images/Blocks/RedstoneBlock.png" Title="延迟" Info="' . ($online ? xesc(latencyText($st['latency'])) : '--') . '" />' . "\n";
+    $xaml .= '            <local:MyListItem Margin="-5,2,-5,2" Logo="pack://application:,,,/images/Blocks/RedstoneBlock.png" Title="延迟" Info="' . ($online ? xesc($st['latency'] !== null ? $st['latency'] . 'ms' : '--') : '--') . '" />' . "\n";
 
     $motd = $online ? plainMotd($st['motd']) : '';
     if ($motd !== '') {
